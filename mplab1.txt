@@ -1,0 +1,307 @@
+1.Write and execute assembly program to add 64 bit numbers.
+PRESERVE8
+	THUMB
+	AREA |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	LDR R0,=0xffffffff
+	LDR R1,=0X3333ffff
+	LDR R2,=0X00000001
+	LDR R3,=0X33330000
+	ADDS R0,R0,R2
+	ADCS R1,R1,R3
+ stop b stop
+	END
+
+
+2.Write and execute assembly program to subtract 64 bit numbers.
+PRESERVE8
+	THUMB
+	AREA |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	LDR R0,=0x00000006
+	LDR R1,=0X00000000
+	LDR R2,=0X00000004
+	LDR R3,=0X00000000
+	subs R0,R0,R2
+	sbcs R1,R1,R3
+stop b stop
+	END
+
+
+3.Write and execute assembly program in assembly to multiply 2 numbers.
+	THUMB
+	AREA |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	LDR R0,=0x00000005
+	LDR R1,=0X00000002
+	muls r0,r1,r0
+stop b stop
+	END
+
+
+4.Write and execute assembly program to extract bit 20 to 26.
+	PRESERVE8 ; Indicate the code here preserve  
+	; 8 byte stack alignment         
+	THUMB     ; Indicate THUMB code is used       
+	AREA    |.text|, CODE, READONLY
+	EXPORT __main			
+; Start of CODE area 
+__main   
+	LDR r0,=0x12345678
+		LSLS r0, r0, #5; 32-w-p
+		LSRS r0, r0, #25; 32-w
+stop B stop
+		END
+
+
+
+5.Write and execute assembly program to bit clear bit 10 to 18.
+PRESERVE8; Indicate the code here preserve  
+; 8 byte stack alignment         
+THUMB     ; Indicate THUMB code is used       
+       AREA    |.text|, CODE, READONLY
+EXPORT __main			
+; Start of CODE area 
+__main
+LDR r0,=0x12345678
+MOVS r1,#10; p
+MOVS r2,#13; 32-p-w
+RORS r0, r1
+LSRS r0, #9; w
+RORS r0, r2
+stop B stop
+END
+
+
+
+6.Write and execute assembly program to swap 10 bytes, the locations start from 20000000 to 20000100.
+PRESERVE8
+	THUMB
+	AREA |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	LDR R0,=0X20000000 ;source address
+	LDR R1,=0X20000200	;destination address
+	MOVS R2,#10  ;swap 10 bytes
+loop
+	ldrb r3,[r0]
+	ldrb r4,[r1]
+	strb r3,[r1]
+	strb r4,[r0]
+	adds r0,r0,#1
+	adds r1,r1,#1
+	subs r2,r2,#1
+	
+	bne loop
+stop b stop
+	END
+;put data in 10 mem locations each and check them swap
+
+
+7.Write and execute assembly program to copy 10 bytes,  the source address starts from 2000 0000 and the destination address starts from 2000 0200
+ PRESERVE8
+ THUMB
+ AREA |.text|, CODE, READONLY
+ EXPORT __main
+__main
+	LDR r0,=0x20000000 ; Source address
+	LDR r1,=0x20000200 ; Destination address
+	LDR r2, =10 ; number of bytes to copy
+copy_loop
+	LDRB r3, [r0] ; read 1 byte
+	ADDS r0, r0, #1 ; increment source pointer
+	STRB r3, [r1] ; write 1 byte
+	ADDS r1, r1, #1 ; increment destination pointer
+	SUBS r2, r2, #1 ; decrement loop counter
+	BNE copy_loop ; loop until all data copied
+stop B stop
+	END
+
+
+8.Write and execute assembly program to implement switch -case.
+PRESERVE8
+	THUMB ; Indicate THUMB code is used
+	AREA |.text|, CODE, READONLY
+	EXPORT __main
+__main
+	LDR R0, =1
+	CMP R0, #3 ; Compare input to maximum valid choice
+	BHI default_case ; Branch to default case if higher than 3
+	MOVS R2, #4 ; Multiply branch table offset by 4
+	MULS R0, R2, R0 ; (size of each entry)
+	LDR R1, =BranchTable ; Get base address of branch table(0x284)
+	LDR R2,[R1,R0] ; Get the actual branch destination
+	BX R2 ; Branch to destination
+	ALIGN 4 ; Alignment control. The table has
+BranchTable ; to be word aligned to prevent unaligned read
+	 ; table of each destination address
+	DCD Dest0
+	DCD Dest1
+	DCD Dest2
+	DCD Dest3
+default_case
+stop B stop
+	; Instructions for default case
+Dest0 ldr r0, =10
+stop1 B stop1
+	; Instructions for case ‘0’
+Dest1 ldr r0, =20
+stop2 B stop2
+	; Instructions for case ‘1’
+Dest2 ldr r0, =30
+stop3 B stop3
+	; Instructions for case ‘2’
+Dest3 ldr r0, =40
+stop4 B stop4
+	; Instructions for case ‘3’
+stop5 B stop5
+ END
+
+
+
+9.Write and execute assembly program to  copy 10 locations each of 1 byte data using stack.
+
+
+
+
+10.Write and execute assembly program to illustrate the usage of functions and nested functions.
+;Nested Functions
+PRESERVE8
+			THUMB
+			AREA    |.text|, CODE, READONLY
+			
+	EXPORT __main
+	EXTERN func
+__main
+	BL func
+	MOVS R0,#40
+	NOP
+stop B stop
+     END
+___________________________________________
+PRESERVE8
+			THUMB
+			AREA    |.text|, CODE, READONLY
+			
+	EXPORT func
+	EXTERN func2
+func
+	PUSH {LR}
+	MOVS R0,#5
+	BL func2
+	POP {PC}
+stop B stop
+     END
+_____________________________________________
+PRESERVE8
+			THUMB
+			AREA    |.text|, CODE, READONLY
+			
+	EXPORT func2
+func2
+	MOVS R1,#10
+	BX LR
+stop B stop
+     END
+
+
+
+
+11.Write and execute assembly Program to Add five elements in loop
+	PRESERVE8 ; Indicate the code here preserve  
+; 8 byte stack alignment         
+       THUMB     ; Indicate THUMB code is used       
+       AREA    |.text|, CODE, READONLY
+			   
+              EXPORT __main			 
+; Start of CODE area 
+__main
+	LDR r0,=0x20000001
+	LDR r2,=5
+	MOVS r4,#0
+copy_loop
+	LDRB r3,[r0]
+	ADDS r0,r0,#1
+	ADDS r4,r3,r4
+	SUBS r2,r2,#1
+	BNE copy_loop
+stop B stop
+	end
+
+
+
+
+12.Write and execute assembly Program to find 5 factorial
+ PRESERVE8
+ THUMB
+ AREA |.text|, CODE, READONLY
+ EXPORT __main
+__main
+	MOVS R6,#05 ; factorial of no
+	MOVS R4, R6
+	SUBS R4,R4,#1
+LOOP
+	MOVS R7,R4
+	MULS R7,R6,R7
+	MOVS R6,R7
+	SUBS R4,R4,#1
+	BNE LOOP
+stop B stop ; R7 ANSWER
+END
+
+
+
+13.Write and execute assembly program   to Illustrate the usage of functions (function contain Test Instruction).
+PRESERVE8 ; Indicate the code here preserve  
+	; 8 byte stack alignment         
+ 	THUMB     ; Indicate THUMB code is used       
+  	AREA    |.text|, CODE, READONLY
+			   
+			   
+              EXPORT __main
+				EXTERN func
+	; Start of CODE area 
+__main
+	BL func
+	NOP
+stop B stop
+     END
+________
+PRESERVE8
+		THUMB
+		AREA    |.text|, CODE, READONLY	   
+	EXPORT func
+func
+		LDR r0,=0xF0000000;
+		LDR r2,=0xF0000000;
+		TST r0,r2;
+		MRS r3,XPSR;updating only N and Z flags not C
+		LDR r0,=0x70000000;
+		LDR r2,=0x70000000;
+		TST r0,r2;
+		MRS r4,XPSR;updating only N and Z flags not C
+		BX LR
+stop B stop
+    END
+
+
+
+
+14.push pop
+	PRESERVE8
+	THUMB
+	AREA |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	ldr r7,=0x20000100
+	ldr r0,=0x20000050
+	ldmia r7!,{r1,r2}
+	mov sp,r0
+	push {r1,r2}
+	pop {r4,r5}
+stop b stop
+	END
+
