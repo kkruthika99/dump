@@ -147,16 +147,16 @@ stop B stop
 	; Instructions for default case
 Dest0 ldr r0, =10
 stop1 B stop1
-	; Instructions for case ‘0’
+	; Instructions for case â€˜0â€™
 Dest1 ldr r0, =20
 stop2 B stop2
-	; Instructions for case ‘1’
+	; Instructions for case â€˜1â€™
 Dest2 ldr r0, =30
 stop3 B stop3
-	; Instructions for case ‘2’
+	; Instructions for case â€˜2â€™
 Dest3 ldr r0, =40
 stop4 B stop4
-	; Instructions for case ‘3’
+	; Instructions for case â€˜3â€™
 stop5 B stop5
  END
 
