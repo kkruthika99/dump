@@ -1,0 +1,157 @@
+GALE SHAPELY
+def GS():
+	while freemen:
+		for m in freemen:
+			listofw = men[m]
+			for w in listofw:
+				if w not in takenwomen:
+					final[w] = m
+					freemen.remove(m)
+					takenwomen.append(w)
+					break
+				else:
+					listofm = women[w]
+					r = final[w]
+					if listofm.index(m) < listofm.index(r):
+						final[w] = m
+						freemen.remove(m)
+						freemen.append(r)
+						takenwomen.append(w)
+						break
+	return final
+
+men = {}
+women = {}
+freemen = []
+takenwomen = []
+final = {}
+n = int(input("Enter number of men/women: "))
+for i in range(n):
+	man = input("Enter man name: ")
+	womenlist = list(input("Enter prefernce for %s: " % man).split(" "))
+	men.update({man:womenlist})
+	freemen.append(man)
+for i in range(n):
+	woman = input("Enter woman name: ")
+	manlist = list(input("Enter prefernce for %s: " % woman).split(" "))
+	men.update({woman:manlist})
+print ("Prefernce List: ")
+print ("Men: ")
+for i in men:
+	print(str(i)+": "+str(men[i]))
+print ("Women: ")
+for i in women:
+	print(str(i)+": "+str(women[i]))
+print ("Stable Matching: ")
+print(GS())
+
+
+INSERTION SORT
+import random,time
+
+def insertion(L):
+    N=len(L)
+    for i in range(1,N):
+        v=L[i]
+        j=i-1
+        while j>=0 and L[j]>v:
+            L[j+1]=L[j]
+            j-=1
+        L[j+1]=v
+    return L
+
+print("Insertion sort:")
+alist=[random.randint(0,2000) for i in range(2000)]
+print(alist)
+start=time.time()
+insertion(alist)
+end=time.time()
+print(end-start,"Seconds")
+print(alist)
+
+
+
+BINARY SEARCH
+import random,time
+def bin_rec(l,key,low,high):
+    if(low<=high):
+        mid = (low+high)//2
+        if key==l[mid]:
+            return mid
+        elif key<l[mid]:
+            return bin_rec(l,key,low,mid-1)
+        else:
+            return bin_rec(l,key,mid+1,high)
+        return None
+k = [i for i in range(20)]
+key = 10
+low = 0
+high = len(k)-1
+print("Recursive binary: ")
+start = time.time()
+match = bin_rec(k,key,low,high)
+time.sleep(1)
+end = time.time()
+print("list is",k)
+print("key is ",key)
+if match==None:
+    print('Unsuccessfull search')
+else:
+    print('Key Found at '+ str(match+1))
+    print ("Time taken: " + str(end-start) + ' seconds')
+
+
+
+SELECTION SORT
+import random,time
+def selection(L):
+    for i in range(len(L)-1):
+        min=i
+        for j in range(i+1,len(L)):
+            if L[j]<L[min]:
+                min=j
+        L[i],L[min] = L[min],L[i]
+    return L
+print("Selection sort:")
+alist=[random.randint(0,20) for i in range(20)]
+print(alist)
+start=time.time()
+selection(alist)
+end=time.time()
+print(end-start,"Seconds")
+print(alist)
+
+
+MERGE SORT
+import random
+import time
+def merge(A,B):
+	C = []
+	while A and B:
+		if A[0] < B[0]:
+			C.append(A.pop(0))
+		else:
+			C.append(B.pop(0))
+	if A:
+		C += A
+	if B:
+		C += B
+	return C
+def merge_sort(arr):
+	if len(arr) == 1:
+		return arr
+	mid = (len(arr)-1)//2
+	A = merge_sort(arr[:mid+1])
+	B = merge_sort(arr[mid+1:])
+	C = merge(A,B)
+	return C
+
+a = random.sample(range(100),40)
+start=time.time()
+b = merge_sort(a)
+end=time.time()
+print (a)
+print (b)
+print ("time",end-start)
+
+
