@@ -1,0 +1,144 @@
+MARIE Sim 
+addition dont forget to put this code in the editor inbuilt in mariesim and save as .mas.assemble it to make it .mex and load it and run
+ORG 100
+LOAD x
+ADD y
+STORE z
+HALT
+x, dec 10
+y, dec 20
+z, dec 0
+
+ARRAY SUM ARMSIM
+save file as .s
+MOV r1,PC
+MOV r6,r1
+MOV r2,#0
+MOV r3,#0
+MOV r4,#0
+MOV r5,#0 
+GO: ADD r4,r4,#1
+STR r4,[r6,r5]
+ADD r5,r5,#4 getting added by 4 each time
+cmp r5,#24
+BNE GO
+LOOP: LDR r2,[r6,r3]
+mov r4,r2
+ADD r3,r3,#4
+ADD r4,r4,#0
+cmp r3,#24
+BNE LOOP
+swi 0X11
+
+FACTORIAL ARMSIM
+save file as .s
+MOV r0,#5
+MOV r1,#1
+MOV r2,#1
+fact:cmp r2,r0
+BGT L1
+MUL r1,r1,r2
+ADD r2,r2,#1
+BL fact
+L1:MOV r0,r1
+
+STRING COPY ARMSIM
+LDR r0,=string
+mov r1,#0
+LDR r2,=0x00002000
+copy:
+ldrb r4,[r0,#0]
+cmp r4,#0
+beq exit
+strb r4,[r2,#0]
+adds r0,r0,#1
+adds r2,r2,#1
+b copy
+exit:
+swi 0x02
+swi 0x11
+string: .asciz "hello\n"
+
+
+QTSPIM STRING REVERSE  save as .s
+.data
+str:     .space 128 # character buffer
+
+
+      .text
+.globl main
+
+main:                  # input the string
+  li    $v0, 8         # service code
+  la    $a0, str       # address of buffer
+  li    $a1, 128       # buffer length
+  syscall
+
+  li    $t0, 0         # push a null
+  subu  $sp, $sp, 4    # onto the stack
+  sw    $t0, ($sp)     # to signal its bottom
+  li    $t1, 0         # index of first char in str
+
+pushl:                 # push each character on the stack
+  lbu    $t0, str($t1) # get current char into a full word
+  beqz  $t0, stend     # null byte: end of string
+  subu  $sp, $sp, 4    # push the full word
+  sw    $t0, ($sp)     # holding the char
+  addu  $t1, $t1 1     # increment the index
+  j      pushl         # loop
+stend:                 # pop chars from stack back into the buffer
+  li    $t1, 0         # index of first byte of str
+popl:
+  lw    $t0, ($sp)     # pop a char off the stack
+  addu  $sp, $sp, 4
+  beqz  $t0, done      # null means empty stack
+
+  sb    $t0, str($t1)  # store at string[$t1]
+  addu  $t1, $t1, 1    # increment the index
+  j      popl
+done:                  # print the reversed string
+  li    $v0, 4         # service code
+  la    $a1, str       # address of string
+  syscall
+  li    $v0, 10        # exit
+syscall
+
+
+QTSPIM PRIME OR NOT
+save as .s and as all files 
+
+.data
+p1: .asciiz "Enter the number : "
+Y: .asciiz "It is prime"
+N: .asciiz "It is not prime"
+X: .word 2
+.text
+.globl main
+main:
+    la $a0, p1
+    li $v0, 4
+    syscall
+    li $v0, 5
+    syscall
+    move $t0, $v0
+    move $t1, $t0
+    lw $t2, X
+loop:
+    div $t0,$t2
+    mfhi $t4
+    beq $t4, 0, lp
+    add $t2,$t2, 1
+    blt $t2,$t1,loop
+    li $v0, 4
+    la $a0, Y
+    syscall
+    li $v0, 10
+    syscall
+lp:
+    li $v0, 4
+    la $a0, N
+    syscall
+    li $v0, 10
+    syscall
+
+
