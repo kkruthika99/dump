@@ -1,0 +1,552 @@
+1a
+;demo push and pop
+	PRESERVE8
+	THUMB
+	AREA |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	MOVS R0,#5
+	PUSH {R0}
+	POP {R1}
+stop b stop
+	END
+	
+1b
+paths core,device,inc,inc/drv,inc/nuc1
+files code,startup,core.c,device.c,systemnuc1xx.c,Drvgpio.c,drvuart.c,devsys.c
+#include <stdio.h>
+#include "NUC1xx.h"
+#include "Driver\DrvGPIO.h"
+#include "Driver\DrvSYS.h"
+#include "Driver\DrvUART.h"
+
+void EINT1Callback(void)
+{
+	DrvGPIO_ClrBit(E_GPC,15);
+	DrvSYS_Delay(100000);
+	DrvGPIO_SetBit(E_GPC,15);
+	DrvSYS_Delay(100000);
+}
+int main(void)
+{
+	UNLOCKREG();
+	DrvSYS_Open(48000000);
+	LOCKREG();
+	DrvGPIO_Open(E_GPC,15,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPC,15,E_IO_INPUT);
+	DrvGPIO_EnableEINT1(E_IO_BOTH_EDGE,E_MODE_EDGE,EINT1Callback);
+	while(1){}
+}
+
+2a
+;extract24-26 and clear15-18
+	preserve8
+	thumb
+	area |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	LDR R0,=0X12345678
+	LDR R1,=0X12345678
+	MOVS R3,#15
+	MOVS R4,#13
+	RORS R0,R0,R3
+	LSRS R0,R0,#4
+	RORS R0,R0,R4;clear
+	LSLS R1,R1,#5
+	LSRS R1,R1,#29;extract
+stop b stop
+	END
+2b
+paths core,device,inc,inc/drv,inc/nuc1
+files code,stratup,core.c,device.c,systemnuc1xx.c,Drvgpio.c,drvuart.c,devsys.c,scankey,ascii,lcdrdrv,7seg
+#include <stdio.h>
+#include "NUC1xx.h"
+#include "Driver\DrvGPIO.h"
+#include "Driver\DrvSYS.h"
+#include "Driver\DrvUART.h"
+#include "scankey.h"
+int main(void)
+{	int8_t number;
+	char TEXT0[16]="Simpl lcd keypad";
+	char TEXT1[16]="krypad";
+	UNLOCKREG();
+	DrvSYS_Open(48000000);
+	LOCKREG();
+	Initial_panel();
+	clr_all_panel();
+	OpenKeyPad();
+	print_lcd(0,TEXT0);
+	while(1)
+	{
+		number=Scankey();
+		sprintf(TEXT1+8,"%D",number);
+		print_lcd(1,TEXT1);
+		DrvSYS_Delay(5000);
+	
+	}
+}
+
+
+3a
+;swap 10 bytes of data
+	preserve8
+	thumb
+	area |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	ldr r0,=0x20000100
+	ldr r1,=0x20000200
+	movs r2,#0
+loop
+	ldrb r3,[r0,r2]
+	ldrb r4,[r1,r2]
+	strb r3,[r1,r2]
+	strb r4,[r0,r2]
+	adds r2,r2,#1
+	cmp r2,#10
+	blt loop
+stop b stop
+	END
+3b
+paths core,device,inc,inc/drv,inc/nuc1
+files code,stratup,core.c,device.c,systemnuc1xx.c,Drvgpio.c,drvuart.c,devsys.c
+#include <stdio.h>
+#include "NUC1xx.h"
+#include "Driver\DrvGPIO.h"
+#include "Driver\DrvSYS.h"
+#include "Driver\DrvUART.h"
+
+void EINT1Callback(void)
+{
+	DrvGPIO_ClrBit(E_GPC,14);
+	DrvSYS_Delay(100000);
+	DrvGPIO_SetBit(E_GPC,14);
+	DrvSYS_Delay(100000);
+}
+
+int main(void)
+{
+	UNLOCKREG();
+	DrvSYS_Open(48000000);
+	LOCKREG();
+	DrvGPIO_Open(E_GPC,14,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPC,14,E_IO_INPUT);
+	DrvGPIO_EnableEINT1(E_IO_BOTH_EDGE,E_MODE_EDGE,EINT1Callback);
+	while(1){}
+	}
+	
+
+4a
+	PRESERVE8
+	THUMB
+	AREA |.text|,CODE,READONLY
+	EXPORT __main
+func
+	MOVS R1,#2
+	MOVS R3,#9
+	MULS R0,R1,R0
+	ADDS R0,R0,R3
+	BX lr
+__main
+	MOVS R0,#4
+	BL func
+stop B stop
+	END
+
+
+4b
+paths core,device,inc,inc/drv,inc/nuc1
+files code,stratup,core.c,device.c,systemnuc1xx.c,Drvgpio.c,drvuart.c,devsys.c,scankey,ascii,lcdrdrv,7seg
+//
+// Smpl_GPIO_RGBled : GPA12,13,14 output control RGB LED
+//                    output low to enable LEDs
+#include <stdio.h>
+#include "NUC1xx.h"
+#include "Driver\DrvGPIO.h"
+#include "Driver\DrvUART.h"
+#include "Driver\DrvSYS.h"
+
+// Initial GPIO pins (GPA 12,13,14) to Output mode  
+void Init_LED()
+{
+	// initialize GPIO pins
+	DrvGPIO_Open(E_GPA, 12, E_IO_OUTPUT); // GPA12 pin set to output mode
+	DrvGPIO_Open(E_GPA, 13, E_IO_OUTPUT); // GPA13 pin set to output mode
+	DrvGPIO_Open(E_GPA, 14, E_IO_OUTPUT); // GPA14 pin set to output mode
+	// set GPIO pins output Hi to disable LEDs
+	DrvGPIO_SetBit(E_GPA, 12); // GPA12 pin output Hi to turn off Blue  LED
+	DrvGPIO_SetBit(E_GPA, 13); // GPA13 pin output Hi to turn off Green LED
+	DrvGPIO_SetBit(E_GPA, 14); // GPA14 pin output Hi to turn off Red   LED
+}    
+
+int main (void)
+{
+	UNLOCKREG();			   // unlock register for programming
+    DrvSYS_Open(48000000);     // set System Clock to run at 48MHz (PLL with 12MHz crystal input)
+	LOCKREG();				   // lock register from programming
+
+	Init_LED();
+						   
+	while (1)
+	{		 
+	// GPA12 = Blue,  0 : on, 1 : off
+	// GPA13 = Green, 0 : on, 1 : off
+	// GPA14 = Red,   0 : on, 1 : off
+
+	// set RGBled to Blue
+    DrvGPIO_ClrBit(E_GPA,12); // GPA12 = Blue,  0 : on, 1 : off
+    DrvGPIO_SetBit(E_GPA,13); 
+    DrvGPIO_SetBit(E_GPA,14); 
+	DrvSYS_Delay(1000000); 		   
+
+	// set RGBled to Green
+    DrvGPIO_SetBit(E_GPA,12); 
+    DrvGPIO_ClrBit(E_GPA,13); // GPA13 = Green, 0 : on, 1 : off
+    DrvGPIO_SetBit(E_GPA,14); 
+	DrvSYS_Delay(1000000);			  
+
+	// set RGBled to Red
+    DrvGPIO_SetBit(E_GPA,12); 
+    DrvGPIO_SetBit(E_GPA,13); 
+    DrvGPIO_ClrBit(E_GPA,14); // GPA14 = Red,   0 : on, 1 : off
+	DrvSYS_Delay(1000000);			  
+	
+	// set RGBled to off	 
+    DrvGPIO_SetBit(E_GPA,12); // GPA12 = Blue,  0 : on, 1 : off
+    DrvGPIO_SetBit(E_GPA,13); // GPA13 = Green, 0 : on, 1 : off
+    DrvGPIO_SetBit(E_GPA,14); // GPA14 = Red,   0 : on, 1 : off
+	DrvSYS_Delay(1000000);
+
+	}
+}
+5a
+    PRESERVE8
+    THUMB
+    AREA |.text|, CODE, READONLY
+	EXPORT __main
+__main
+	MOVS R0,#5
+	MOVS R1,#1
+loop
+	MULS R1,R0,R1
+	SUBS R0,R0,#1
+	BNE loop
+	NOP
+	END
+5b
+paths core,device,inc,inc/drv,inc/nuc1
+files code,stratup,core.c,device.c,systemnuc1xx.c,Drvgpio.c,drvuart.c,devsys.c,scankey,ascii,lcdrdrv,7seg
+//inta string , intb 77
+#include <stdio.h>
+#include "NUC1xx.h"
+#include "Driver\DrvGPIO.h"
+#include "Driver\DrvSYS.h"
+#include "Driver\DrvUART.h"
+#include "LCD_Driver.h"
+void EINT0Callback()
+{
+	print_lcd(1,"interrupt a");
+}
+void EINT1Callback()
+{
+	print_lcd(3,"interrupt b");
+	close_seven_segment();
+	show_seven_segment(0,7);
+	show_seven_segment(1,7);
+	DrvSYS_Delay(1000000);
+}
+int main(void)
+{
+	char TEXT[16];
+	UNLOCKREG();
+	DrvSYS_Open(48000000);
+	LOCKREG();
+	Initial_panel();
+	clr_all_panel();
+	print_lcd(0,"SIMPLE GPIO INTERRUPT");
+	DrvGPIO_Open(E_GPB,14,E_IO_INPUT);
+	DrvGPIO_EnableEINT0(E_IO_BOTH_EDGE,E_MODE_EDGE,EINT0Callback);
+	DrvGPIO_Open(E_GPB,15,E_IO_INPUT);
+	DrvGPIO_EnableEINT1(E_IO_BOTH_EDGE,E_MODE_EDGE,EINT1Callback);
+	while(1)
+	{
+	}
+}
+
+6a
+	PRESERVE8
+	THUMB
+	AREA |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	LDR R0,=0x20000100
+	LDR R1,=0x20000500
+	MOVS R2,#0
+	MOVS R4,#0
+sum
+	LDRB R3,[R0,R2]
+	ADDS R4,R4,R3
+	ADDS R2,R2,#1
+	CMP R2,#10
+	BLT sum
+	STR R4,[R1,#0]
+stop B stop
+	END
+
+
+6b
+#include "Driver\DrvUART.h"
+#include "Driver\DrvSYS.h"
+void Init_LED()
+{
+	DrvGPIO_Open(E_GPC, 12, E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPC, 13, E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPC, 14, E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPC, 15, E_IO_OUTPUT);
+	DrvGPIO_SetBit(E_GPC, 15);
+	DrvGPIO_SetBit(E_GPC, 14);
+	DrvGPIO_SetBit(E_GPC, 13);
+	DrvGPIO_SetBit(E_GPC, 12);
+}
+int main(void )
+{
+	UNLOCKREG();
+  DrvSYS_Open(48000000);
+	LOCKREG();
+	Init_LED();				   
+	while (1)
+	{		 
+    DrvGPIO_ClrBit(E_GPC,15);
+		DrvSYS_Delay(1000000); 	
+    DrvGPIO_SetBit(E_GPC,15);
+		DrvGPIO_ClrBit(E_GPC,14);
+		DrvSYS_Delay(1000000); 	
+    DrvGPIO_SetBit(E_GPC,14);
+		DrvGPIO_ClrBit(E_GPC,13);
+		DrvSYS_Delay(1000000); 	
+    DrvGPIO_SetBit(E_GPC,13);
+		DrvGPIO_ClrBit(E_GPC,12);
+		DrvSYS_Delay(1000000); 	
+    DrvGPIO_SetBit(E_GPC,12);
+		DrvSYS_Delay(1000000); 		   
+	}
+}
+
+7a
+PRESERVE8
+THUMB
+AREA |.text|,CODE,READONLY
+EXPORT func
+EXTERN func1
+func
+MOVS R1,#5
+BL func1
+stop B stop
+END
+++++++++++++++++++++++++++
+PRESERVE8
+THUMB
+AREA |.text|,CODE,READONLY
+EXPORT func1
+func1
+MOVS R0,#10
+BX LR
+stop B stop
+END
+++++++++++++++++++++++++++++++
+PRESERVE8
+THUMB
+AREA |.text|,CODE,READONLY
+EXPORT __main
+EXTERN func
+__main
+MOVS R0,#1
+BL func
+stop B stop
+END
+
+7b
+#include <stdio.h>
+#include "NUC1xx.h"
+#include "Driver\DrvGPIO.h"
+#include "Driver\DrvUART.h"
+#include "Driver\DrvSYS.h"
+#include "LCD_driver.h"
+int main(void )
+{
+	UNLOCKREG();
+  DrvSYS_Open(48000000);
+	LOCKREG();
+	Initial_panel();
+	clr_all_panel();
+	print_lcd(0,"welcme to msrit");
+}
+
+8a
+	PRESERVE8
+	THUMB
+	AREA |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	MOVS R0,#3
+	CMP R0,#3
+	BHI default_case
+	MOVS R2,#4
+	MULS R0,R2,R0
+	LDR R1,=BranchTable
+	LDR R2,[R1,R0]
+	BX R2
+	ALIGN 4
+BranchTable
+	DCD Test0
+	DCD Test1
+	DCD Test2
+	DCD Test3
+default_case
+	MOVS R0,#1
+stop B stop
+Test0
+	MOVS R0,#2
+stop1 B stop1
+Test1
+	MOVS r0,#3
+stop2 B stop2
+Test2
+	MOVS R0,#4
+stop3 B stop3
+Test3
+	MOVS R0,#5
+stop4 B stop4
+	END
+
+8b
+#include <stdio.h>
+#include "NUC1xx.h"
+#include "Driver\DrvGPIO.h"
+#include "Driver\DrvUART.h"
+#include "Driver\DrvSYS.h"
+void EINT1Callback(void)
+{ DrvGPIO_ClrBit(E_GPB,11);
+DrvSYS_Delay(1000);
+DrvGPIO_SetBit(E_GPB,11); 
+DrvSYS_Delay(1000);
+}
+int main(void)
+{ UNLOCKREG();
+DrvSYS_Open(48000000);
+LOCKREG();
+DrvGPIO_Open(E_GPB, 11, E_IO_OUTPUT);
+DrvGPIO_Open(E_GPB, 15, E_IO_INPUT);
+DrvGPIO_EnableEINT1(E_IO_BOTH_EDGE, E_MODE_EDGE, EINT1Callback);
+while(1) { }
+}
+
+
+9a
+	;equation 2x^2 +x+3
+	preserve8
+	thumb
+	area |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	movs r0,#5
+	movs r1,#5
+	movs r2,#2
+	muls r1,r0,r1
+	muls r1,r2,r1
+	adds r1,r1,r0
+	adds r1,r1,#3
+stop b stop
+	END
+
+
+9b
+include <stdio.h>
+#include "NUC1xx.h"
+#include "DrvSYS.h"
+#include "DrvGPIO.h"
+#include "scankey.h"
+#include "NUC1xx-LB_002\LCD_Driver.h"
+int main (void)
+{ int8_t number;
+char TEXT0[16]="Smpl_LCD_Keypad";
+char TEXT1[16]="Keypad: ";
+UNLOCKREG();
+DrvSYS_Open(48000000);
+LOCKREG();
+Initial_panel();
+clr_all_panel();
+OpenKeyPad();
+print_lcd(0,TEXT0);
+DrvGPIO_Open(E_GPB, 11, E_IO_OUTPUT);
+DrvGPIO_Open(E_GPC, 12, E_IO_OUTPUT);
+DrvGPIO_SetBit(E_GPC, 12);
+while(1)
+{ number = Scankey();
+sprintf(TEXT1+8,"%d",number);
+print_lcd(1, TEXT1);
+DrvSYS_Delay(5000); 
+if(number==3)
+{ DrvGPIO_ClrBit(E_GPB,11);
+DrvSYS_Delay(1000);
+DrvGPIO_SetBit(E_GPB,11);
+DrvSYS_Delay(1000);
+}
+else if(number==2)
+{ DrvGPIO_ClrBit(E_GPC, 12);
+DrvSYS_Delay(3000000);
+DrvGPIO_SetBit(E_GPC, 12);
+DrvSYS_Delay(3000000);
+}
+}
+} 
+
+10a
+	;copy 10 bytes from 20000000 to  20000200
+	preserve8
+	thumb
+	area |.text|,CODE,READONLY
+	EXPORT __main
+__main
+	ldr r0,=0x20000000
+	ldr r1,=0x20000200
+	movs r2,#0
+loop
+	ldrb r3,[r0,r2]
+	strb r3,[r1,r2]
+	adds r2,r2,#1
+	cmp r2,#10
+	blt loop
+stop b stop
+	END
+	
+10b
+paths core,device,inc,inc/drv,inc/nuc1
+files code,startup,core.c,device.c,systemnuc1xx.c,Drvgpio.c,drvuart.c,devsys.c
+#include <stdio.h>
+#include "NUC1xx.h"
+#include "Driver\DrvGPIO.h"
+#include "Driver\DrvSYS.h"
+#include "Driver\DrvUART.h"
+
+void EINT1Callback(void)
+{
+	DrvGPIO_ClrBit(E_GPC,15);
+	DrvSYS_Delay(100000);
+	DrvGPIO_SetBit(E_GPC,15);
+	DrvSYS_Delay(100000);
+}
+int main(void)
+{
+	UNLOCKREG();
+	DrvSYS_Open(48000000);
+	LOCKREG();
+	DrvGPIO_Open(E_GPC,15,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPC,15,E_IO_INPUT);
+	DrvGPIO_EnableEINT1(E_IO_BOTH_EDGE,E_MODE_EDGE,EINT1Callback);
+	while(1){}
+}
+	
+
+
+
