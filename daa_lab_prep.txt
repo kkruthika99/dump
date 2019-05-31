@@ -1,0 +1,503 @@
+1a.
+import time
+def binary_search (A, low, high, key):
+	if high >= low:
+		mid = (low+high)//2
+		if A[mid] == key:
+			return mid+1
+		elif A[mid] > key:
+			return binary_search(A, low, mid-1, key)
+		else:
+			return binary_search(A, mid+1, high, key)
+	return -1
+A = list(map(int,input("Enter array of numbers\n").split()))
+key = int(input("Enter key: "))
+A.sort()
+print (A)
+start = time.process_time()
+print (binary_search(A,0,len(A)-1,key))
+end = time.process_time()
+print ("Time Taken: ",str(end-start))
+
+1b
+def ins_sort(b):
+	for i in range(len(b)):
+		v=b[i]
+		j=i-1
+		while j>=0 and b[j]>v:
+			b[j+1]=b[j]
+			j-=1
+		b[j+1]=v
+
+def bucket_sort():
+	global arr,n
+	buckets=[[]for i in range(n)]
+	for i in range(n):
+		buckets[int(n*arr[i])].append(arr[i])
+	for i in range(n):
+		if len(buckets[i])>1:
+			ins_sort(buckets[i])
+	arr=[]
+	for i in range(len(buckets)):
+		if len(buckets[i])>0:
+			arr.extend(buckets[i])
+
+import random
+n=int(input("Enter length of list:"))
+arr=[]
+arr=[round(random.uniform(0,1),2) for i in range(n)]
+'''print("Enter list elements")
+for i in range(n):
+	val=float(input())
+	arr.append(val)'''
+print("List:",arr)
+bucket_sort()
+print("Sorted list:")
+for i in range(n):
+	print(arr[i]," ",end='')
+print()
+
+
+
+2a
+#7n+5
+n0=0
+c=8
+print("c=",c)
+print("n,f(n),c*g(n)")
+for n in range(10,31):
+	fn=7*n+5
+	gn=c*n
+	if(fn<=gn and n0==0):
+		n0=n
+	print(n,",",fn,",",gn)
+print("n0=",n0)
+
+2b
+def GS():
+	while freemen:
+		for m in freemen:
+			listofw = men[m]
+			for w in listofw:
+				if w not in takenwomen:
+					final[w] = m
+					freemen.remove(m)
+					takenwomen.append(w)
+					break
+				else:
+					listofm = women[w]
+					r = final[w]
+					if listofm.index(m) < listofm.index(r):
+						final[w] = m
+						freemen.remove(m)
+						freemen.append(r)
+						takenwomen.append(w)
+						break
+	return final
+
+men = {}
+women = {}
+freemen = []
+takenwomen = []
+final = {}
+n = int(input("Enter number of men/women: "))
+for i in range(n):
+	man = input("Enter man name: ")
+	womenlist = list(input("Enter prefernce for %s: " % man).split(" "))
+	men.update({man:womenlist})
+	freemen.append(man)
+for i in range(n):
+	woman = input("Enter woman name: ")
+	manlist = list(input("Enter prefernce for %s: " % woman).split(" "))
+	women.update({woman:manlist})
+print ("Prefernce List: ")
+print ("Men: ")
+for i in men:
+	print (str(i),": ",str(men[i]))
+print ("Women: ")
+for i in women:
+	print (str(i),": ",str(women[i]))
+print("Stable matching")
+print(GS())
+
+3a
+def dfs(graph,source):
+	visited[source-1] = 1
+	print (source)
+	for k in graph[source]:
+		if visited[k-1] == 0:
+			dfs(graph,k)
+
+graph = {}
+n = int(input("Enter number of nodes: "))
+for i in range(n):
+	nodes = list(map(int,input("Enter the nodes connected to %d: " % (i+1)).split()))
+	graph.update({i+1:nodes})
+visited = [0]*len(graph)
+source = int(input("Enter source node: "))
+print ("Traversal: ")
+dfs(graph,source)
+
+3b
+import random
+import time
+def insertion_sort(arr):
+	for i in range(1,len(arr)):
+		key = arr[i]
+		j = i-1
+		while j >= 0 and key < arr[j]:
+			arr[j+1] = arr[j]
+			j -= 1
+		arr[j+1] = key
+	return arr
+
+a = list(map(int,input("enter array of numbers(%d): ").split()))
+start=time.process_time()
+b = insertion_sort(a)
+end = time.process_time()
+print(b)
+print (str(end-start))
+
+
+4a
+# f(n)=3n^2+4n+3
+n0=0
+c=35
+print("Value of c=",c) 
+print("n | f(n) | c*g(n)")
+for n in range(10,31):
+	fn=3*n*n+4*n+3
+	gn=c*n
+	if fn>=gn and n0==0:
+		n0=n
+	print(n," ",fn,"   ",gn)
+print("n0=",n0)
+
+4b
+def bfs(graph,source):
+	queue = []
+	visited = [0]*len(graph)
+	visited[source-1] = 1
+	queue.append(source)
+	while queue:
+		print(queue[0])
+		u=queue.pop(0)
+		for v in graph[u]:
+			if visited[v-1] == 0:
+				visited[v-1] = 1
+				queue.append(v)
+
+graph = {}
+n = int(input("Enter number of nodes: "))
+for i in range(n):
+	nodes = list(map(int,input("Enter the nodes connected to %d: " % (i+1)).split()))
+	graph.update({i+1:nodes})
+source = int(input("Enter source node: "))
+traversal=bfs(graph,source)
+print ("Traversal: ")
+
+5b
+def merge(A,B):
+	C=[]
+	while A and B:
+		if A[0]<B[0]:
+			C.append(A.pop(0))
+		else:
+			C.append(B.pop(0))
+	if A:
+		C+=A
+	if B:
+		C+=B
+	return C
+
+
+def merge_sort(arr):
+	if len(arr)==1:
+		return arr
+	mid=(len(arr)-1)//2
+	A=merge_sort(arr[:mid+1])
+	B=merge_sort(arr[mid+1:])
+	C=merge(A,B)
+	return C
+
+b=merge_sort([2,1,34,2,1,3])
+print(b)
+
+6a
+
+
+
+
+7b
+a=[1,2,3,2,21,3,2]
+def partition(arr,low,high):
+	i=low-1
+	pivot=arr[high]
+	for j in range(low,high):
+		if(arr[j]<=pivot):
+			i+=1
+			arr[j],arr[i]=arr[i],arr[j]
+	arr[i+1],arr[high]=arr[high],arr[i+1]
+	return i+1
+def quicksort(arr,low,high):
+	if(low<high):
+		pi=partition(arr,low,high)
+		quicksort(arr,low,pi-1)
+		quicksort(arr,pi,high)
+print(a)
+quicksort(a,0,len(a)-1)
+print(a)
+
+8b
+def dijkstras(s):
+	d,visited = [999]*len(graph),[0]*(len(graph))
+	d[s-1] = 0
+	visited[s-1] = 1
+	vertices = [s]
+	while len(vertices) != len(graph):
+		edge={}
+		for u in vertices:
+			for v in graph[u]:
+				if visited[v-1] == 0:
+					t = d[u-1]+graph[u][v]
+					edge.update({t:[u,v]})
+		min_d = min(edge.keys())
+		node = edge[min_d][1]
+		d[node-1] = min_d
+		visited[node-1] = 1
+		vertices.append(node)
+	return d
+
+graph = {}
+n = int(input("Enter the number of nodes in graph: "))
+for i in range(n):
+	graph[i+1] = {}
+	no = int(input("Enter the number of nodes connected to %d" % (i+1)))
+	for j in range(no):
+		node,weight = map(int,input("Enter connected node and weight of edge: ").split())
+		graph[i+1].update({node:weight})
+for i in graph:
+	print(i,":",graph[i])
+print ("Distance array: ")
+print(dijkstras(1))
+9b
+
+def Prims(graph):
+	U,V = set([1]),set(graph.keys())
+	result = []
+	while len(U) != len(V):
+		minw = float('inf')
+		for u in U:
+			for v in graph[u]:
+				if v in V-U:
+					if minw > graph[u][v]:
+						minw = graph[u][v]
+						mine = [u,v]
+		mine.append(minw)
+		result.append(mine)
+		U.add(mine[1])
+	return result
+graph = {}
+n = int(input("Enter the number of nodes: "))
+for i in range(n):
+	graph[i+1]={}
+	no = int(input("Enter the number of nodes connected to %d" % (i+1)))
+	for j in range(no):
+		node,weight = map(int,input("Enter connected node and weight of edge: ").split())
+		graph[i+1].update({node:weight})
+for i in graph:
+	print (i,":",graph[i])
+print ("Tree: ")
+print (Prims(graph))
+10b
+graph = [
+	[ 1, 2, 10 ],
+	[ 1, 5, 5 ],
+	[ 2, 4, 6 ],
+	[ 5, 3, 7 ],
+	[ 5, 4, 3 ],
+	[ 2, 3, 1 ],
+	[ 4, 3, 2 ]
+]
+print(graph)
+graph.sort(key=lambda x:x[2])
+print(graph)
+parent = [-1]*(len(graph)+1)
+print(parent)
+def find(i):
+	if parent[i] == -1:
+		return i
+	else:
+		return find(parent[i])
+def union(i,j):
+	i_s = find(i)
+	j_s = find(j)
+	parent[i_s] = j_s
+	print(parent)
+def Kruskals():
+	result = []
+	for k in range(4):
+		u = graph[k][0]
+		v = graph[k][1]
+		u_s = find(u)
+		v_s = find(v)
+		if v_s != u_s:
+			result.append([u,v,graph[k][2]])
+			union(u,v)
+	return result
+print (Kruskals())
+
+11b
+def knapSack1(W, wt, val, n):
+	K = [[0 for x in range(W + 1)] for x in range(n + 1)]
+	for i in range(n + 1):
+		for w in range(W + 1):
+			if i == 0 or w == 0:
+				K[i][w] = 0
+			elif wt[i - 1] <= w:
+				K[i][w] = max(val[i - 1] + K[i - 1][w - wt[i - 1]], K[i - 1][w])
+			else:
+				K[i][w] = K[i - 1][w]
+	return K[n][W]
+val = [10,4,9,11]
+wt = [3,5,6,2]
+W = 7
+n = len(val)
+print(knapSack1(W, wt, val, n))
+
+12b
+intervals = []
+n = int(input("Enter the number of intervals: "))
+for i in range(n):
+	u = int(input("Enter start time: "))
+	v = int(input("Enter end time: "))
+	w = int(input("Enter interval weight: "))
+	intervals.append([u,v,w])
+
+intervals.sort(key=lambda x:x[1])
+p = [0]*(len(intervals)+1)
+M = [-1]*(len(intervals)+1)
+M[0] = 0
+def predecessor():
+	for i in range(len(intervals)-1,-1,-1):
+		start_time = intervals[i][0]
+		for j in range(i-1,-1,-1):
+			end_time = intervals[j][1]
+			if end_time <= start_time:
+				p[i+1] = j+1
+				break
+def OPT():
+	for i in range(1,len(intervals)+1):
+		vi = intervals[i-1][2]
+		M[i] = max(vi+M[p[i]],M[i-1])
+def solution():
+	final_set = []
+	profit = 0
+	j = len(intervals)
+	while j != 0:
+		if intervals[j-1][2]+M[p[j]] > M[j-1]:
+			final_set.append(j)
+			profit += intervals[j-1][2]
+			j = p[j]
+		else:
+			j -= 1
+	return profit,final_set
+predecessor()
+OPT()
+profit,final_set=solution()
+print (profit)
+print (final_set)
+
+13a
+arr=[1,2,1,2,12,4,5]
+n=len(arr)
+for i in range(1,n):
+	for j in range(n-i):
+		if arr[j]>arr[j+1]:
+			arr[j],arr[j+1]=arr[j+1],arr[j]
+print("Sorted List:",arr)
+
+
+13b
+def bf(s):
+	global graph,n
+	d=[999 for i in range(n+1)]
+	d[s]=0
+	for i in range(n-1):
+		for pair in graph:
+			d[pair[1]]=min(d[pair[1]],d[pair[0]]+pair[2])
+	del d[0]
+	return d
+
+graph=[]
+n=int(input("Enter number of nodes:"))
+e=int(input("Enter number of edges:"))
+for i in range(e):
+	u=int(input("Enter node u:"))
+	v=int(input("Enter node v:"))
+	c=int(input("Enter cost:"))
+	graph.append((u,v,c))
+print("Graph:",graph)
+source=int(input("Enter source node:"))
+d=bf(source)
+print("---Single Source Shortest Path Tree---")
+print("EDGE     : COST")
+for i in range(n):
+	print(source,"--->",i+1,":",d[i])
+
+14a
+def selection_sort(arr):
+	n=len(arr)
+	for i in range(n):
+		for j in range(i+1,n):
+			if arr[i] > arr[j]:
+				arr[j], arr[i] = arr[i], arr[j]
+	return arr
+a = list(map(int,input("Enter a list to be soreted").split()))
+print (a)
+b=selection_sort(a)
+print (b)
+
+14b
+n = int(input('Enter the number of vertices (> 2): '))
+print('Enter the cost matrix (-1 if no edge exists):')
+c = []
+for _ in range(n):
+    c.append(list(map(int, input().split())))
+bound = 0
+smallest = []
+solution = 1
+for i in c:
+    i = sorted(filter(lambda x: x != -1, i))
+    smallest.append(i[0])
+    bound += i[0]
+    solution += i[-1]
+visited = {0}
+current_path = [0]
+best_path = []
+def tsp(cost, bound, path_cost, path):
+    if len(path) == n:
+        if cost[path[-1]][path[0]] != -1:
+            path_cost += cost[path[-1]][path[0]]
+            global solution, best_path
+            if solution > path_cost:
+                solution = path_cost
+                best_path = path[:]
+    else:
+        for i in range(n):
+            if i not in visited and cost[path[-1]][i] != -1:
+                path_cost_i = path_cost + cost[path[-1]][i]
+                bound_i = bound - smallest[path[-1]]
+                if bound_i + path_cost_i < solution:
+                    visited.add(i)
+                    path.append(i)
+                    tsp(cost, bound_i, path_cost_i, path)
+                    path.pop()
+                    visited.remove(i)
+tsp(c, bound, 0, current_path)
+if best_path:
+    best_path.append(0)
+    print(solution)
+    print('Path:', best_path)
+else:
+    print('No cycle exists')
